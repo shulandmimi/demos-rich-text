@@ -1,6 +1,9 @@
 import { Configuration } from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+
+import { getCssLoaders } from './utils';
 
 const cwd = process.cwd();
 
@@ -10,7 +13,7 @@ const outputPath = resolve('./dist');
 const htmlTemplate = resolve('public/index.html');
 
 export default {
-    entry: entry,
+    entry,
     output: {
         path: outputPath,
         filename: '[name].js',
@@ -22,6 +25,10 @@ export default {
                 test: /\.ts/,
                 use: ['ts-loader'],
             },
+            {
+                test: /\.css/,
+                use: getCssLoaders(),
+            },
         ],
     },
     stats: {
@@ -32,6 +39,9 @@ export default {
         new HtmlWebpackPlugin({
             template: htmlTemplate,
             inject: true,
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'css/[hash:10].css',
         }),
     ],
     resolve: {
