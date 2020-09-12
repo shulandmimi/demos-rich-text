@@ -2,7 +2,6 @@ import mount, { RawContainer } from './mount';
 import createControllers, { Controller } from './createControllers';
 import createEditor from './createEditor';
 import CreateSelect from './createSelection';
-import { RawCommandReturn } from '@/controller/command';
 
 export interface Context {
     root: HTMLElement;
@@ -13,10 +12,19 @@ export interface Context {
 export type InstanceOptions = Partial<{
     controllers: Controller[];
     controllerClassName: string;
-}>
+    mutex: boolean;
+}>;
 
+const instanceUUID = Symbol('uuid');
+
+/** 生成一个编辑器实例 */
 export default function createInstance(container: RawContainer, rawOptions?: Partial<InstanceOptions>) {
     const root = mount(container);
+    if (instanceUUID in root) {
+        // @ts-ignore
+        if (root[instanceUUID]) return;
+        else root.innerHTML = '';
+    }
     const { e } = createEditor();
     const context: Context = {
         root,
@@ -30,5 +38,13 @@ export default function createInstance(container: RawContainer, rawOptions?: Par
 
     root.appendChild(c);
     root.appendChild(e);
-    return root;
+
+    // @ts-ignore
+    root[instanceUUID] = !!rawOptions?.mutex;
+
+    return {
+        root,
+        head: c,
+        body: e,
+    };
 }

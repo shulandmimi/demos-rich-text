@@ -1,4 +1,3 @@
-import {} from 'lodash';
 import { Context } from './createInstance';
 import { rawCommand, RawCommandReturn } from '@/controller/command';
 import { InstanceOptions } from './createInstance';
@@ -13,9 +12,10 @@ type ControllerRenderReturn = HTMLElement | string;
 export interface Controller {
     name: string;
     render: ((root: HTMLElement) => HTMLElement | string) | string;
-    mounted?: (cur: HTMLElement, head: Element, options: CreateControllersParams & { command: RawCommandReturn }) => void;
+    mounted?: (el: { parent: HTMLElement; head: Element }, options: { options: CreateControllersParams; command: RawCommandReturn }) => void;
 }
 
+/** 生成控制器 */
 export default function createControllers(options: CreateControllersParams) {
     const { context, rawOptions } = options;
     const { controllers = [], controllerClassName = '' } = rawOptions || {};
@@ -23,6 +23,7 @@ export default function createControllers(options: CreateControllersParams) {
     const head = document.createElement('div');
     const container = document.createElement<'div'>('div');
     const command = rawCommand(context.selection);
+
     controllers.forEach(({ render, mounted }) => {
         let ele: ControllerRenderReturn;
         if (typeof render === 'function') ele = render(head);
@@ -47,9 +48,10 @@ export default function createControllers(options: CreateControllersParams) {
             newEl.classList.add('controllerItem');
             controllerClassName && newEl.classList.add(controllerClassName);
             head.appendChild(newEl);
-            mounted && mounted(newEl, head, { ...options, command });
+            mounted && mounted({ parent: newEl, head }, { options, command });
         }
     });
+
     return {
         c: head,
     };

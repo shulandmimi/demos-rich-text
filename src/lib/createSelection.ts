@@ -1,3 +1,4 @@
+/** 生成一个selection实例，处理selection */
 export default class CreateSelect {
     _current?: Range;
     constructor() {}
@@ -10,6 +11,7 @@ export default class CreateSelect {
         this._current = newVal;
     }
 
+    /** 重置 */
     restoreSelection() {
         if (!this.current) return;
         var selection = window.getSelection();
@@ -17,6 +19,7 @@ export default class CreateSelect {
         selection?.addRange(this.current);
     }
 
+    /** 保存一个选择范围 */
     saveRange(range?: Range) {
         if (range) {
             this.current = range;
